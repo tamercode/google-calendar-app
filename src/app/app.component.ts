@@ -29,9 +29,14 @@ export class AppComponent implements OnInit {
         }
     ).then(result => {
         this.apiReady = true;
+        this.apiLoaderService.sigInState();
     }, err => {
         this.apiFailed = true;
     });
 }
+
+autorizza() { this.apiLoaderService.signIn(); }
+revoca() {this.apiLoaderService.signOut(); }
+eventi () { this.apiLoaderService.listUpcomingEvents(); }
 
 }
