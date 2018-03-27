@@ -1,8 +1,18 @@
-import { NgZone, Injectable, Optional } from '@angular/core';
+import { NgZone, Injectable, Optional} from '@angular/core';
+import { Time } from '@angular/common';
 declare var gapi: any;
+
+class Event {
+
+
+
+}
 
 @Injectable()
 export class ApiLoaderService {
+
+  evento: Event;
+
 
 
   // Client ID and API key from the Developer Console
@@ -20,48 +30,48 @@ export class ApiLoaderService {
 
   loadClient(): Promise<any> {
     return new Promise((resolve, reject) => {
-        this.zone.run(() => {
-               gapi.load('client:auth2', {
-                   callback: resolve,
-                   onerror: reject,
-                   timeout: 1000, // 5 seconds.
-                   ontimeout: reject
-               });
+      this.zone.run(() => {
+        gapi.load('client:auth2', {
+          callback: resolve,
+          onerror: reject,
+          timeout: 1000, // 5 seconds.
+          ontimeout: reject
         });
-   });
-}
+      });
+    });
+  }
 
-initClient(): Promise<any> {
+  initClient(): Promise<any> {
 
-  const initObj = {
+    const initObj = {
       'apiKey': this.API_KEY,
       'clientId': this.CLIENT_ID,
       'discoveryDocs': this.DISCOVERY_DOCS,
       'scope': this.SCOPES
-  };
+    };
 
-  return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       this.zone.run(() => {
-          gapi.client.init(initObj).then(resolve, reject, );
+        gapi.client.init(initObj).then(resolve, reject, );
       });
-  });
-}
+    });
+  }
 
-sigInState() {
+  sigInState() {
 
     gapi.auth2.getAuthInstance().isSignedIn.listen(this.updateSigninStatus);
 
     // Handle the initial sign-in state.
     this.updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
-}
+  }
 
-updateSigninStatus(a) {console.log('sigIn ' + a ); }
+  updateSigninStatus(a) { console.log('sigIn ' + a); }
 
-signIn() {gapi.auth2.getAuthInstance().signIn(); }
-signOut() { gapi.auth2.getAuthInstance().signOut(); }
+  signIn() { gapi.auth2.getAuthInstance().signIn(); }
+  signOut() { gapi.auth2.getAuthInstance().signOut(); }
 
 
-listUpcomingEvents() {
+  listUpcomingEvents() {
     gapi.client.calendar.events.list({
       'calendarId': 'primary',
       'timeMin': (new Date()).toISOString(),
@@ -69,9 +79,8 @@ listUpcomingEvents() {
       'singleEvents': true,
       'maxResults': 10,
       'orderBy': 'startTime'
-    }).then(function(response) {
+    }).then(response => {
       const events = response.result.items;
-
       if (events.length > 0) {
         for (let i = 0; i < events.length; i++) {
           const event = events[i];
@@ -86,8 +95,4 @@ listUpcomingEvents() {
       }
     });
   }
-
-
-
-
 }
