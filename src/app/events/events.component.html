@@ -1,0 +1,50 @@
+<div class="container" *ngIf="mostra">
+<clr-datagrid [(clrDgSelected)]="selected" [clDgRowSelection]="true" *ngIf="mostra">
+    <clr-dg-action-bar>
+        <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-secondary" (click)="create()">
+                <clr-icon shape="plus"></clr-icon> Create</button>
+            <button type="button" class="btn btn-sm btn-secondary" (click)="delete()">
+                <clr-icon shape="close"></clr-icon> Delete</button>
+            <button type="button" class="btn btn-sm btn-secondary" *ngIf="selected.length == 1" (click)="edit()">
+                <clr-icon shape="pencil"></clr-icon> Edit</button>
+        </div>
+    </clr-dg-action-bar>
+    <clr-dg-column [clrDgField]="'summary'">Name</clr-dg-column>
+    <clr-dg-column [clrDgField]="'description'">Desciption</clr-dg-column>
+    <clr-dg-column [clrDgField]="'start.date'">Daily event date start</clr-dg-column>
+    <clr-dg-column [clrDgField]="'end.date'">Daily event date end</clr-dg-column>
+    <clr-dg-column [clrDgField]="'start.dateTime'">Hourly event date start</clr-dg-column>
+    <clr-dg-column [clrDgField]="'end.dateTime'">Hourly event date start</clr-dg-column>
+    <clr-dg-column [clrDgField]="'location'">Location</clr-dg-column>
+
+    <clr-dg-row *clrDgItems="let event of eventsList" [clrDgItem]="event">
+        <clr-dg-cell>{{event.summary}}</clr-dg-cell>
+        <clr-dg-cell>{{event.description}}</clr-dg-cell>
+        <clr-dg-cell>{{event.start.date}}</clr-dg-cell>
+        <clr-dg-cell>{{event.end.date}}</clr-dg-cell>
+        <clr-dg-cell>{{event.start.dateTime}}</clr-dg-cell>
+        <clr-dg-cell>{{event.end.dateTime}}</clr-dg-cell>
+        <clr-dg-cell>{{event.location}}</clr-dg-cell>
+    </clr-dg-row>
+    <clr-dg-footer>
+            <clr-dg-pagination #pagination [clrDgPageSize]="10">
+                    {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
+                    of {{pagination.totalItems}} users
+                </clr-dg-pagination>
+    </clr-dg-footer>
+</clr-datagrid>
+</div>
+<div style="margin: 50px;">
+<!-- <app-event *ngIf="formVisible" [event]="copySelectedEvent" (Cancel)="hideForm()" (Save)="save()"></app-event> -->
+is_Loaded_({{apiLoaded}})__
+_is_Failed_({{apiFailed}})__
+_is_Read_({{apiReady}})__
+_is_loggato({{loggato}})
+<!-- <p>{{eventsList[0].summary}}</p> -->
+<!--Add buttons to initiate auth sequence and sign out-->
+<button id="authorize-button" (click)="autorizza()">Authorize</button>
+<button id="signout-button" (click)="revoca()">Sign Out</button>
+<button id="signout-button" (click)="eventi()">Eventi</button>
+<button id="signout-button" (click)="test()">Test</button>
+</div>

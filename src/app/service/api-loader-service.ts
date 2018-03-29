@@ -1,17 +1,24 @@
 import { NgZone, Injectable, Optional} from '@angular/core';
 import { Time } from '@angular/common';
+import { promise } from 'protractor';
+import { Event } from '../events/events.model';
+import {Observable} from 'rxjs/Observable';
+
+
 declare var gapi: any;
-
-class Event {
-
-
-
-}
 
 @Injectable()
 export class ApiLoaderService {
 
-  evento: Event;
+  sequence = new Observable((observer) => {
+
+    observer.next(1);
+  } );
+
+
+
+  _signIn = false;
+  cont = 1;
 
 
 
@@ -52,47 +59,49 @@ export class ApiLoaderService {
 
     return new Promise((resolve, reject) => {
       this.zone.run(() => {
-        gapi.client.init(initObj).then(resolve, reject, );
+        gapi.client.init(initObj).then(resolve, reject);
       });
     });
   }
 
+  primoSignIn() { return this.updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get()); }
+  ascoltoSignIn() { return gapi.auth2.getAuthInstance().isSignedIn.listen(this.updateSigninStatus.bind(this.updateSigninStatus)); }
+
   sigInState() {
+     // controlla lo stato del token di atutorizzazione
 
-    gapi.auth2.getAuthInstance().isSignedIn.listen(this.updateSigninStatus);
+    // controlla ogni volta che c'è un cambiamento di stato dell'autorizzazione
+    gapi.auth2.getAuthInstance().isSignedIn.listen(this.updateSigninStatus.bind(this.updateSigninStatus));
 
-    // Handle the initial sign-in state.
+    // controlla lo stato inizale che non verrebbe rilevato dal comando precedente
     this.updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
   }
 
-  updateSigninStatus(a) { console.log('sigIn ' + a); }
+  statoSignIn() { return gapi.auth2.getAuthInstance().isSignedIn.get(); }
 
-  signIn() { gapi.auth2.getAuthInstance().signIn(); }
-  signOut() { gapi.auth2.getAuthInstance().signOut(); }
+  signIn() { return gapi.auth2.getAuthInstance().signIn(); }
+  signOut() {return gapi.auth2.getAuthInstance().signOut(); }
 
 
   listUpcomingEvents() {
-    gapi.client.calendar.events.list({
+
+  return  gapi.client.calendar.events.list({
       'calendarId': 'primary',
       'timeMin': (new Date()).toISOString(),
       'showDeleted': false,
       'singleEvents': true,
-      'maxResults': 10,
+      'maxResults': 30,
       'orderBy': 'startTime'
-    }).then(response => {
-      const events = response.result.items;
-      if (events.length > 0) {
-        for (let i = 0; i < events.length; i++) {
-          const event = events[i];
-          let when = event.start.dateTime;
-          if (!when) {
-            when = event.start.date;
-          }
-          console.log(event.summary + ' (' + when + ')');
-        }
-      } else {
-        console.log('No upcoming events found.');
-      }
     });
+
   }
+
+  updateSigninStatus(isSignedIn) {  // funzione di appoggio per this.sigInState();
+
+    if (isSignedIn) {
+      console.log('sigIn ' + typeof(isSignedIn) + isSignedIn); this._signIn = isSignedIn; return isSignedIn;
+     } else { console.log('sigIn ' + typeof(isSignedIn) + isSignedIn); this._signIn = isSignedIn; return isSignedIn; }
+  }
+
+
 }
