@@ -1,17 +1,17 @@
 <div class="container" *ngIf="mostra">
-<clr-datagrid [(clrDgSelected)]="selected" [clDgRowSelection]="true" *ngIf="mostra">
+        
+<clr-datagrid [(clrDgSingleSelected)]="selected" [clDgRowSelection]="true" *ngIf="mostra">
     <clr-dg-action-bar>
         <div class="btn-group">
             <button type="button" class="btn btn-sm btn-secondary" (click)="create()">
                 <clr-icon shape="plus"></clr-icon> Create</button>
-            <button type="button" class="btn btn-sm btn-secondary" (click)="delete()">
+            <button type="button" class="btn btn-sm btn-secondary" (click)="deleteEvent()">
                 <clr-icon shape="close"></clr-icon> Delete</button>
-            <button type="button" class="btn btn-sm btn-secondary" *ngIf="selected.length == 1" (click)="edit()">
+            <button type="button" class="btn btn-sm btn-secondary" *ngIf="selected" (click)="edit()">
                 <clr-icon shape="pencil"></clr-icon> Edit</button>
         </div>
     </clr-dg-action-bar>
     <clr-dg-column [clrDgField]="'summary'">Name</clr-dg-column>
-    <clr-dg-column [clrDgField]="'description'">Desciption</clr-dg-column>
     <clr-dg-column [clrDgField]="'start.date'">Daily event date start</clr-dg-column>
     <clr-dg-column [clrDgField]="'end.date'">Daily event date end</clr-dg-column>
     <clr-dg-column [clrDgField]="'start.dateTime'">Hourly event date start</clr-dg-column>
@@ -20,11 +20,10 @@
 
     <clr-dg-row *clrDgItems="let event of eventsList" [clrDgItem]="event">
         <clr-dg-cell>{{event.summary}}</clr-dg-cell>
-        <clr-dg-cell>{{event.description}}</clr-dg-cell>
-        <clr-dg-cell>{{event.start.date}}</clr-dg-cell>
-        <clr-dg-cell>{{event.end.date}}</clr-dg-cell>
-        <clr-dg-cell>{{event.start.dateTime}}</clr-dg-cell>
-        <clr-dg-cell>{{event.end.dateTime}}</clr-dg-cell>
+        <clr-dg-cell>{{event.start.date | date: 'dd/MM/yyyy'}}</clr-dg-cell>
+        <clr-dg-cell>{{event.end.date | date: 'dd/MM/yyyy'}}</clr-dg-cell>
+        <clr-dg-cell>{{event.start.dateTime | date: 'short'}}</clr-dg-cell>
+        <clr-dg-cell>{{event.end.dateTime | date: 'short'}}</clr-dg-cell>
         <clr-dg-cell>{{event.location}}</clr-dg-cell>
     </clr-dg-row>
     <clr-dg-footer>
@@ -47,4 +46,7 @@ _is_loggato({{loggato}})
 <button id="signout-button" (click)="revoca()">Sign Out</button>
 <button id="signout-button" (click)="eventi()">Eventi</button>
 <button id="signout-button" (click)="test()">Test</button>
+<input type="date" clrDate>
+
+
 </div>

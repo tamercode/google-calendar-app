@@ -10,12 +10,6 @@ declare var gapi: any;
 @Injectable()
 export class ApiLoaderService {
 
-  sequence = new Observable((observer) => {
-
-    observer.next(1);
-  });
-
-
 
   _signIn = false;
   cont = 1;
@@ -31,7 +25,7 @@ export class ApiLoaderService {
 
   // Authorization scopes required by the API; multiple scopes can be
   // included, separated by spaces.
-  SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
+  SCOPES = 'https://www.googleapis.com/auth/calendar';
 
   constructor(private zone: NgZone) { }
 
@@ -64,23 +58,48 @@ export class ApiLoaderService {
     });
   }
 
-  primoSignIn() { return this.updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get()); }
-  ascoltoSignIn() { return gapi.auth2.getAuthInstance().isSignedIn.listen(this.updateSigninStatus.bind(this.updateSigninStatus)); }
 
-  sigInState() {
-    // controlla lo stato del token di atutorizzazione
+  sigInState() {   // controlla lo stato del token di atutorizzazione
 
-    // controlla ogni volta che c'è un cambiamento di stato dell'autorizzazione
-    gapi.auth2.getAuthInstance().isSignedIn.listen(this.updateSigninStatus.bind(this.updateSigninStatus));
 
-    // controlla lo stato inizale che non verrebbe rilevato dal comando precedente
-    this.updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+    this.zone.run(() => {
+      // controlla ogni volta che c'è un cambiamento di stato dell'autorizzazione
+      gapi.auth2.getAuthInstance().isSignedIn.listen(this.updateSigninStatus.bind(this.updateSigninStatus));
+
+      // controlla lo stato inizale che non verrebbe rilevato dal comando precedente
+      this.updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+    });
+
   }
 
-  statoSignIn() { return gapi.auth2.getAuthInstance().isSignedIn.get(); }
+  statoSignIn(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.zone.run(() => {
+        resolve(gapi.auth2.getAuthInstance().isSignedIn.get());
+      });
+    });
+  }
 
-  signIn() { return gapi.auth2.getAuthInstance().signIn(); }
-  signOut() { return gapi.auth2.getAuthInstance().signOut(); }
+  signIn(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.zone.run(() => {
+        gapi.auth2.getAuthInstance().signIn().then(resolve, reject);
+      });
+    });
+
+
+  }
+  signOut(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.zone.run(() => {
+        gapi.auth2.getAuthInstance().signOut().then(resolve, reject);
+      });
+    });
+
+
+
+
+  }
 
 
   listUpcomingEvents(): Promise<any> {
@@ -98,13 +117,21 @@ export class ApiLoaderService {
     });
   }
 
-test() {
-  const t = gapi.client.calendar;
+  DeleteEvents(event: Event): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.zone.run(() => {
+        console.log(event.id);
+        gapi.client.calendar.events.delete({
+          'calendarId': 'petraliariccardo@gmail.com',
+          'eventId': event.id,
 
-  console.log(t instanceof Promise);
- }
+        }).then(resolve, reject);
+      });
+    });
+  }
 
-  updateSigninStatus(isSignedIn) {  // funzione di appoggio per this.sigInState();
+
+  private updateSigninStatus(isSignedIn) {  // funzione di appoggio per this.sigInState();
 
     if (isSignedIn) {
       console.log('sigIn ' + typeof (isSignedIn) + isSignedIn); this._signIn = isSignedIn; return isSignedIn;

@@ -25,7 +25,7 @@ export class EventsComponent implements OnInit {
     mostra = false;
     eventsList: Event[] = [];
     appog = false;
-    selected: Event[] = [];
+    selected: Event;
     copySelectedEvent: Event;
     loading = true;
     total: number;
@@ -60,11 +60,8 @@ export class EventsComponent implements OnInit {
             }
         ).then(result => {
             this.apiReady = true;
-            this.apiLoaderService.primoSignIn();
-            this.apiLoaderService.ascoltoSignIn();
-            this.loggato = this.apiLoaderService.statoSignIn();
-           // scontrolla se è stato effettuato l'accesso}
-           console.log('pronta');
+            this.setStato();
+            this.apiLoaderService.sigInState();
         },
             err => {
                 this.apiFailed = true;
@@ -72,12 +69,14 @@ export class EventsComponent implements OnInit {
 
      }
 
+     setStato() { this.apiLoaderService.statoSignIn().then( risp => this.loggato = risp ); }
 
+    autorizza() { this.apiLoaderService.signIn().then(() => { this.setStato(); this.eventi(); }); }
+    revoca() { this.apiLoaderService.signOut().then(() => { this.mostra = false; this.setStato();    }); }
+    deleteEvent() { console.log('idEvent: ' + 
+    this.selected.id); this.apiLoaderService.DeleteEvents(this.selected).then(() => this.eventi()); }
 
-    autorizza() { this.apiLoaderService.signIn().then(() => {this.loggato = true; this.eventi(); }); }
-    revoca() { this.apiLoaderService.signOut().then(() => {this.loggato = false; this.mostra = false; }); }
-
-    test() { this.apiLoaderService.test(); }
+    test() { }
     eventi() {
 
         this.apiLoaderService.listUpcomingEvents().then(
@@ -99,66 +98,6 @@ export class EventsComponent implements OnInit {
             err => { console.log('devi autorizzarti per accedere'); }
         );
     }
-
-    refresh(state: ClrDatagridStateInterface) {
-        this.state = state;
-        this.loading = true;
-        const filters: { [prop: string]: any[] } = {};
-        if (state.filters) {
-            for (const filter of state.filters) {
-                const { property, value } = <{ property: string, value: string }>filter;
-                filters[property] = [value];
-            }
-        }
-        this.service.filter(filters)
-            .sort(<{ by: string, reverse: boolean }>state.sort)
-            .fetch(state.page.from, state.page.size)
-            .sendRequest().subscribe(arg => { this.eventsList = arg.body; this.total = parseInt(arg.headers.get('X-Total-Count'), 10); });
-
-        this.selected.splice(0, this.selected.length); this.loading = false;
-    }
-
-    delete() {
-        this.loading = true;
-        this.service.deleteEvents(this.selected).subscribe(() => {
-            this.selected.splice(0, 1);
-            if (this.selected.length > 0) {
-                this.delete();
-            } else {
-                this.refresh(this.state);
-            }
-        });
-    }
-
-    edit() {
-        this.createFLag = false;
-        this.copySelectedEvent = this.selected[0];
-        this.showForm();
-    }
-
-    create() {
-
-        const event = new Event;
-        this.copySelectedEvent = event;
-        this.createFLag = true;
-        this.showForm();
-    }
-
-    save() {
-        this.loading = true;
-        if (this.createFLag) {
-            console.log(this.copySelectedEvent);
-            this.service.createEvent(this.copySelectedEvent).subscribe(arg => { this.refresh(this.state); this.hideForm(); });
-        } else {
-            this.service.updateEvent(this.selected[0]).subscribe(arg => {
-                this.refresh(this.state);
-                this.hideForm(); this.selected.splice(0, 1);
-            });
-        }
-    }
-
-    showForm() { this.formVisible = true; }
-    hideForm() { this.formVisible = false; }
 
 }
 
