@@ -1,8 +1,8 @@
-import { NgZone, Injectable, Optional} from '@angular/core';
+import { NgZone, Injectable, Optional } from '@angular/core';
 import { Time } from '@angular/common';
 import { promise } from 'protractor';
 import { Event } from '../events/events.model';
-import {Observable} from 'rxjs/Observable';
+import { Observable } from 'rxjs/Observable';
 
 
 declare var gapi: any;
@@ -13,7 +13,7 @@ export class ApiLoaderService {
   sequence = new Observable((observer) => {
 
     observer.next(1);
-  } );
+  });
 
 
 
@@ -68,7 +68,7 @@ export class ApiLoaderService {
   ascoltoSignIn() { return gapi.auth2.getAuthInstance().isSignedIn.listen(this.updateSigninStatus.bind(this.updateSigninStatus)); }
 
   sigInState() {
-     // controlla lo stato del token di atutorizzazione
+    // controlla lo stato del token di atutorizzazione
 
     // controlla ogni volta che c'è un cambiamento di stato dell'autorizzazione
     gapi.auth2.getAuthInstance().isSignedIn.listen(this.updateSigninStatus.bind(this.updateSigninStatus));
@@ -80,27 +80,35 @@ export class ApiLoaderService {
   statoSignIn() { return gapi.auth2.getAuthInstance().isSignedIn.get(); }
 
   signIn() { return gapi.auth2.getAuthInstance().signIn(); }
-  signOut() {return gapi.auth2.getAuthInstance().signOut(); }
+  signOut() { return gapi.auth2.getAuthInstance().signOut(); }
 
 
-  listUpcomingEvents() {
-
-  return  gapi.client.calendar.events.list({
-      'calendarId': 'primary',
-      'timeMin': (new Date()).toISOString(),
-      'showDeleted': false,
-      'singleEvents': true,
-      'maxResults': 30,
-      'orderBy': 'startTime'
+  listUpcomingEvents(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.zone.run(() => {
+        gapi.client.calendar.events.list({
+          'calendarId': 'primary',
+          'timeMin': (new Date()).toISOString(),
+          'showDeleted': false,
+          'singleEvents': true,
+          'maxResults': 30,
+          'orderBy': 'startTime'
+        }).then(resolve, reject);
+      });
     });
-
   }
+
+test() {
+  const t = gapi.client.calendar;
+
+  console.log(t instanceof Promise);
+ }
 
   updateSigninStatus(isSignedIn) {  // funzione di appoggio per this.sigInState();
 
     if (isSignedIn) {
-      console.log('sigIn ' + typeof(isSignedIn) + isSignedIn); this._signIn = isSignedIn; return isSignedIn;
-     } else { console.log('sigIn ' + typeof(isSignedIn) + isSignedIn); this._signIn = isSignedIn; return isSignedIn; }
+      console.log('sigIn ' + typeof (isSignedIn) + isSignedIn); this._signIn = isSignedIn; return isSignedIn;
+    } else { console.log('sigIn ' + typeof (isSignedIn) + isSignedIn); this._signIn = isSignedIn; return isSignedIn; }
   }
 
 

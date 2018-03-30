@@ -11,12 +11,12 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppComponent } from './app.component';
 import {EventsComponent} from './events/events.component';
-import { EventComponent } from './events/event.componet';
+
 
 
 @NgModule({
   declarations: [
-    AppComponent, EventsComponent, EventComponent,
+    AppComponent, EventsComponent,
   ],
   imports: [
     BrowserModule,

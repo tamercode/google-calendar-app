@@ -5,7 +5,6 @@ import { ApiLoaderService } from '../service/api-loader-service';
 
 
 import { ClrDatagridStateInterface, ClrDatagrid } from '@clr/angular';
-import { EventComponent } from './event.componet';
 import { HttpClient } from '@angular/common/http/src/client';
 
 
@@ -46,6 +45,11 @@ export class EventsComponent implements OnInit {
 
     constructor(private service: EventsService, private apiLoaderService: ApiLoaderService) {
 
+
+    }
+
+    ngOnInit(): void {
+
         this.apiLoaderService.loadClient().then(        // carica le librerie di google
             result => {
                 this.apiLoaded = true;
@@ -60,20 +64,20 @@ export class EventsComponent implements OnInit {
             this.apiLoaderService.ascoltoSignIn();
             this.loggato = this.apiLoaderService.statoSignIn();
            // scontrolla se è stato effettuato l'accesso}
+           console.log('pronta');
         },
             err => {
                 this.apiFailed = true;
             });
-    }
 
-    ngOnInit(): void { }
+     }
 
 
 
     autorizza() { this.apiLoaderService.signIn().then(() => {this.loggato = true; this.eventi(); }); }
     revoca() { this.apiLoaderService.signOut().then(() => {this.loggato = false; this.mostra = false; }); }
 
-    test() { this.mostra = this.appog; }
+    test() { this.apiLoaderService.test(); }
     eventi() {
 
         this.apiLoaderService.listUpcomingEvents().then(
@@ -90,6 +94,7 @@ export class EventsComponent implements OnInit {
                     console.log('No upcoming events found.');
                 }
                 this.mostra = true;
+                console.log(this.eventsList);
             },
             err => { console.log('devi autorizzarti per accedere'); }
         );
