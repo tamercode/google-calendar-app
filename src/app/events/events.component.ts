@@ -6,10 +6,38 @@ import { ApiLoaderService } from '../service/api-loader-service';
 
 import { ClrDatagridStateInterface, ClrDatagrid } from '@clr/angular';
 import { HttpClient } from '@angular/common/http/src/client';
+import {ClrDatagridStringFilterInterface} from '@clr/angular';
+import {ClrDatagridComparatorInterface} from '@clr/angular';
 
+class DateStartFilter implements ClrDatagridStringFilterInterface<Event> {
+    accepts(event: Event, search: string): boolean {
 
+        if (event.start.date) {
 
+            return event.start.date.toString().substring(0, 10).indexOf(search) >= 0;
+            }
+        if (event.start.dateTime) {
+            return event.start.dateTime.toString().substring(0, 10).indexOf(search) >= 0;
+        }
+    }
+}
 
+class DateStartComparator implements ClrDatagridComparatorInterface<Event> {
+    compare(event1: Event, event2: Event) {
+        if (event1.start.date && event2.start.date) {
+            return (new Date(event1.start.date)).getTime() - (new Date(event2.start.date)).getTime();
+            }
+        if (event1.start.date && event2.start.dateTime) {
+            return (new Date(event1.start.date)).getTime() - (new Date(event2.start.dateTime)).getTime();
+        }
+        if (event1.start.dateTime && event2.start.date) {
+            return (new Date(event1.start.dateTime)).getTime() - (new Date(event2.start.date)).getTime();
+        }
+         if (event1.start.dateTime && event2.start.dateTime) {
+            return (new Date(event1.start.dateTime)).getTime() - (new Date(event2.start.dateTime)).getTime();
+        }
+    }
+}
 
 @Component({
     moduleId: module.id,
@@ -21,7 +49,8 @@ import { HttpClient } from '@angular/common/http/src/client';
 
 export class EventsComponent implements OnInit {
 
-
+    private dateFilter = new DateStartFilter();
+    private datestartComparator = new DateStartComparator();
     mostra = false;
     eventsList: Event[] = [];
     appog = false;
@@ -60,23 +89,30 @@ export class EventsComponent implements OnInit {
             }
         ).then(result => {
             this.apiReady = true;
-            this.setStato();
+            this.apiLoaderService.statoSignIn().then(risp => {
+                this.loggato = risp;
+               /*  if (risp) {
+                    this.eventi();
+                } */
+            });
             this.apiLoaderService.sigInState();
         },
             err => {
                 this.apiFailed = true;
             });
+    }
 
-     }
+    test () { console.log(this.selected.start); }
 
-     setStato() { this.apiLoaderService.statoSignIn().then( risp => this.loggato = risp ); }
+    setStato() { this.apiLoaderService.statoSignIn().then(risp => this.loggato = risp); }
 
     autorizza() { this.apiLoaderService.signIn().then(() => { this.setStato(); this.eventi(); }); }
-    revoca() { this.apiLoaderService.signOut().then(() => { this.mostra = false; this.setStato();    }); }
-    deleteEvent() { console.log('idEvent: ' + 
-    this.selected.id); this.apiLoaderService.DeleteEvents(this.selected).then(() => this.eventi()); }
+    revoca() { this.apiLoaderService.signOut().then(() => { this.mostra = false; this.setStato(); }); }
+    deleteEvent() {
+        console.log('idEvent: ' +
+            this.selected.id); this.apiLoaderService.DeleteEvents(this.selected).then(() => this.eventi());
+    }
 
-    test() { }
     eventi() {
 
         this.apiLoaderService.listUpcomingEvents().then(
@@ -92,8 +128,6 @@ export class EventsComponent implements OnInit {
                 } else {
                     console.log('No upcoming events found.');
                 }
-                this.mostra = true;
-                console.log(this.eventsList);
             },
             err => { console.log('devi autorizzarti per accedere'); }
         );

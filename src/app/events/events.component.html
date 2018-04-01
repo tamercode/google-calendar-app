@@ -1,6 +1,6 @@
-<div class="container" *ngIf="mostra">
+<div class="container">
         
-<clr-datagrid [(clrDgSingleSelected)]="selected" [clDgRowSelection]="true" *ngIf="mostra">
+<clr-datagrid [(clrDgSingleSelected)]="selected" [clDgRowSelection]="true">
     <clr-dg-action-bar>
         <div class="btn-group">
             <button type="button" class="btn btn-sm btn-secondary" (click)="create()">
@@ -10,19 +10,23 @@
             <button type="button" class="btn btn-sm btn-secondary" *ngIf="selected" (click)="edit()">
                 <clr-icon shape="pencil"></clr-icon> Edit</button>
         </div>
+        <p>Dal</p><input type="date" clrDate>
+        <p>al</p><input type="date" clrDate>
     </clr-dg-action-bar>
     <clr-dg-column [clrDgField]="'summary'">Name</clr-dg-column>
-    <clr-dg-column [clrDgField]="'start.date'">Daily event date start</clr-dg-column>
+    <clr-dg-column [clrDgSortBy]="datestartComparator">Event date start
+        
+        <clr-dg-string-filter [clrDgStringFilter]="dateFilter"></clr-dg-string-filter>
+        
+    </clr-dg-column>
     <clr-dg-column [clrDgField]="'end.date'">Daily event date end</clr-dg-column>
-    <clr-dg-column [clrDgField]="'start.dateTime'">Hourly event date start</clr-dg-column>
     <clr-dg-column [clrDgField]="'end.dateTime'">Hourly event date start</clr-dg-column>
     <clr-dg-column [clrDgField]="'location'">Location</clr-dg-column>
 
     <clr-dg-row *clrDgItems="let event of eventsList" [clrDgItem]="event">
         <clr-dg-cell>{{event.summary}}</clr-dg-cell>
-        <clr-dg-cell>{{event.start.date | date: 'dd/MM/yyyy'}}</clr-dg-cell>
+        <clr-dg-cell>{{event.start.date || event.start.dateTime.substring(0, 10)}}</clr-dg-cell>
         <clr-dg-cell>{{event.end.date | date: 'dd/MM/yyyy'}}</clr-dg-cell>
-        <clr-dg-cell>{{event.start.dateTime | date: 'short'}}</clr-dg-cell>
         <clr-dg-cell>{{event.end.dateTime | date: 'short'}}</clr-dg-cell>
         <clr-dg-cell>{{event.location}}</clr-dg-cell>
     </clr-dg-row>
@@ -46,7 +50,7 @@ _is_loggato({{loggato}})
 <button id="signout-button" (click)="revoca()">Sign Out</button>
 <button id="signout-button" (click)="eventi()">Eventi</button>
 <button id="signout-button" (click)="test()">Test</button>
-<input type="date" clrDate>
+
 
 
 </div>
