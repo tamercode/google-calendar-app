@@ -17,8 +17,8 @@ export class ApiLoaderService {
 
 
   // Client ID and API key from the Developer Console
-  CLIENT_ID = '479813960877-cvibh2fal13gkn2pgqipp7263d6d1l74.apps.googleusercontent.com';
-  API_KEY = 'AIzaSyCjwP4tQfj5UN3o1afcf5-JIP_9KgkSUcg';
+  CLIENT_ID = '';
+  API_KEY = '';
 
   // Array of API discovery doc URLs for APIs used by the quickstart
   DISCOVERY_DOCS = ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'];
