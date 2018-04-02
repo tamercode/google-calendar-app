@@ -171,16 +171,23 @@ export class EventsComponent implements OnInit {
 
     syncEvent(event) {
 
-        // this.eventsList.push(event);
 
-       // console.log(event);
 
        if (this.eventsList.length === 0) { this.eventsList.push(event); return; }
 
         for (let e = 0; e <= this.eventsList.length - 1; e++) {
 
+                // inserire if per controllare lo status e fare lo splice su l'indice dell'elemento
 
-                if (this.eventsList[e].id === event.id) { this.eventsList[e] = event; return; }
+                if (this.eventsList[e].id === event.id) {
+
+                    if (event.status === 'cancelled') {
+
+                        this.eventsList.splice(e, 1); return;
+
+                    } else { this.eventsList[e] = event; return; }
+
+                }
 
 
                 if ((this.eventsList[e] !== event.id) && (e === this.eventsList.length - 1)) { this.eventsList.push(event); return; }
@@ -242,6 +249,7 @@ export class EventsComponent implements OnInit {
             pageToken = resp.result.nextPageToken;
 
         } while (pageToken !== undefined);
+        console.log('risposta: ' + resp.body);
         this.syncToken = resp.result.nextSyncToken;
         console.log('syncToken1: ' + resp.result.nextSyncToken);
         console.log('Sync complete.');
