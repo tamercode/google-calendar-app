@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { NgModule, LOCALE_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { HttpModule, JsonpModule } from '@angular/http';
@@ -27,7 +27,7 @@ import {EventsComponent} from './events/events.component';
     HttpModule,
     JsonpModule,
   ],
-  providers: [],
+  providers: [{ provide: LOCALE_ID, useValue: 'it' }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

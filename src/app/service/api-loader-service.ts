@@ -102,20 +102,28 @@ export class ApiLoaderService {
   }
 
 
-  listUpcomingEvents(): Promise<any> {
+ listUpcomingEvents(list): Promise<any> {
     return new Promise((resolve, reject) => {
       this.zone.run(() => {
-        gapi.client.calendar.events.list({
-          'calendarId': 'primary',
-          'timeMin': (new Date()).toISOString(),
-          'showDeleted': false,
-          'singleEvents': true,
-          'maxResults': 30,
-          'orderBy': 'startTime'
-        }).then(resolve, reject);
+        gapi.client.calendar.events.list(list).then(resolve, reject);
       });
     });
   }
+
+
+ listUpcomingEvents1(list): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.zone.run(() => {
+
+      const risp = gapi.client.calendar.events.list(list).then(resolve, reject);
+      });
+    });
+  }
+
+
+
+
+
 
   DeleteEvents(event: Event): Promise<any> {
     return new Promise((resolve, reject) => {

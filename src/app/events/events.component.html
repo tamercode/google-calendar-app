@@ -1,56 +1,77 @@
+
 <div class="container">
-        
-<clr-datagrid [(clrDgSingleSelected)]="selected" [clDgRowSelection]="true">
-    <clr-dg-action-bar>
-        <div class="btn-group">
-            <button type="button" class="btn btn-sm btn-secondary" (click)="create()">
-                <clr-icon shape="plus"></clr-icon> Create</button>
-            <button type="button" class="btn btn-sm btn-secondary" (click)="deleteEvent()">
-                <clr-icon shape="close"></clr-icon> Delete</button>
-            <button type="button" class="btn btn-sm btn-secondary" *ngIf="selected" (click)="edit()">
-                <clr-icon shape="pencil"></clr-icon> Edit</button>
-        </div>
-        <p>Dal</p><input type="date" clrDate>
-        <p>al</p><input type="date" clrDate>
-    </clr-dg-action-bar>
-    <clr-dg-column [clrDgField]="'summary'">Name</clr-dg-column>
-    <clr-dg-column [clrDgSortBy]="datestartComparator">Event date start
-        
-        <clr-dg-string-filter [clrDgStringFilter]="dateFilter"></clr-dg-string-filter>
-        
-    </clr-dg-column>
-    <clr-dg-column [clrDgField]="'end.date'">Daily event date end</clr-dg-column>
-    <clr-dg-column [clrDgField]="'end.dateTime'">Hourly event date start</clr-dg-column>
-    <clr-dg-column [clrDgField]="'location'">Location</clr-dg-column>
-
-    <clr-dg-row *clrDgItems="let event of eventsList" [clrDgItem]="event">
-        <clr-dg-cell>{{event.summary}}</clr-dg-cell>
-        <clr-dg-cell>{{event.start.date || event.start.dateTime.substring(0, 10)}}</clr-dg-cell>
-        <clr-dg-cell>{{event.end.date | date: 'dd/MM/yyyy'}}</clr-dg-cell>
-        <clr-dg-cell>{{event.end.dateTime | date: 'short'}}</clr-dg-cell>
-        <clr-dg-cell>{{event.location}}</clr-dg-cell>
-    </clr-dg-row>
-    <clr-dg-footer>
-            <clr-dg-pagination #pagination [clrDgPageSize]="10">
-                    {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
-                    of {{pagination.totalItems}} users
-                </clr-dg-pagination>
-    </clr-dg-footer>
-</clr-datagrid>
+        <p>From</p>
+        <input type="date" [(clrDate)]="timeMin">
+        <p>To</p>
+        <input type="date" [(clrDate)]="timeMax">
+        <p>Max items</p>
+        <input type="text" placeholder="max items 2500" size="15" [(ngModel)]="maxResults" class="maxitems">
+        <button class="btn btn-primary go" (click)="tastoEventi()">
+            <clr-icon shape="download"></clr-icon>&thinsp; download
+        </button>
 </div>
+
+    <clr-main-container>
+    
+        <div class="content-container">
+            <div class="content-area">
+                <clr-datagrid>
+                    <clr-dg-action-bar>
+                        <!-- <div class="btn-group">
+                            <button type="button" class="btn btn-sm btn-secondary" (click)="create()">
+                                <clr-icon shape="plus"></clr-icon> Create</button>
+                            <button type="button" class="btn btn-sm btn-secondary" (click)="deleteEvent()">
+                                <clr-icon shape="close"></clr-icon> Delete</button>
+                            <button type="button" class="btn btn-sm btn-secondary" *ngIf="selected" (click)="edit()">
+                                <clr-icon shape="pencil"></clr-icon> Edit</button>
+                        </div> -->
+                    </clr-dg-action-bar>
+
+                    <clr-dg-column [clrDgField]="'summary'">Name</clr-dg-column>
+                    <clr-dg-column [clrDgSortBy]="dateComparatorStart">Date Start
+                        <clr-dg-string-filter [clrDgStringFilter]="dateFilterStart"></clr-dg-string-filter>
+                    </clr-dg-column>
+                    <clr-dg-column [clrDgSortBy]="dateComparatorEnd">Date End
+                        <clr-dg-string-filter [clrDgStringFilter]="dateFilterEnd"></clr-dg-string-filter>
+                    </clr-dg-column>
+                    <clr-dg-column [clrDgSortBy]="hourComparatorStart">Start Hour
+                        <clr-dg-string-filter [clrDgStringFilter]="hourFilterStart"></clr-dg-string-filter>
+                    </clr-dg-column>
+                    <clr-dg-column [clrDgSortBy]="hourComparatorEnd">Start End
+                        <clr-dg-string-filter [clrDgStringFilter]="hourFilterEnd"></clr-dg-string-filter>
+                    </clr-dg-column>
+                    <clr-dg-column [clrDgField]="'location'">Location</clr-dg-column>
+
+                    <clr-dg-row *clrDgItems="let event of eventsList" [clrDgItem]="event">
+                            <clr-dg-action-overflow>
+                                    <button class="action-item" (click)="onEdit(user)">Edit</button>
+                                    <button class="action-item" (click)="onDelete(user)">Delete</button>
+                                </clr-dg-action-overflow>
+                        <clr-dg-cell>{{event.summary}}</clr-dg-cell>
+                        <clr-dg-cell>{{event.start.date || event.start.dateTime | date: 'dd/MM/yyyy'}}</clr-dg-cell>
+                        <clr-dg-cell>{{event.end.date || event.end.dateTime | date: 'dd/MM/yyyy'}}</clr-dg-cell>
+                        <clr-dg-cell>{{event.start.dateTime| date: 'hh:mm a'}}</clr-dg-cell>
+                        <clr-dg-cell>{{event.end.dateTime| date: 'hh:mm a'}}</clr-dg-cell>
+                        <clr-dg-cell>{{event.location}}</clr-dg-cell>
+                    </clr-dg-row>
+                    <clr-dg-footer>
+                        <clr-dg-pagination #pagination [clrDgPageSize]="10">
+                            {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}} of {{pagination.totalItems}} users
+                        </clr-dg-pagination>
+                    </clr-dg-footer>
+                </clr-datagrid>
+            </div>
+        </div>
+    </clr-main-container>
+
+
 <div style="margin: 50px;">
-<!-- <app-event *ngIf="formVisible" [event]="copySelectedEvent" (Cancel)="hideForm()" (Save)="save()"></app-event> -->
-is_Loaded_({{apiLoaded}})__
-_is_Failed_({{apiFailed}})__
-_is_Read_({{apiReady}})__
-_is_loggato({{loggato}})
-<!-- <p>{{eventsList[0].summary}}</p> -->
-<!--Add buttons to initiate auth sequence and sign out-->
-<button id="authorize-button" (click)="autorizza()">Authorize</button>
-<button id="signout-button" (click)="revoca()">Sign Out</button>
-<button id="signout-button" (click)="eventi()">Eventi</button>
-<button id="signout-button" (click)="test()">Test</button>
-
-
-
+    <!-- <app-event *ngIf="formVisible" [event]="copySelectedEvent" (Cancel)="hideForm()" (Save)="save()"></app-event> -->
+    is_Loaded_({{apiLoaded}})__ _is_Failed_({{apiFailed}})__ _is_Read_({{apiReady}})__ _is_loggato({{loggato}})
+    <!-- <p>{{eventsList[0].summary}}</p> -->
+    <!--Add buttons to initiate auth sequence and sign out-->
+    <button id="authorize-button" (click)="autorizza()">Authorize</button>
+    <button id="signout-button" (click)="revoca()">Sign Out</button>
+    <button id="signout-button" (click)="tastoEventi()">Eventi</button>
+    <button id="signout-button" (click)="test()">Test</button>
 </div>
