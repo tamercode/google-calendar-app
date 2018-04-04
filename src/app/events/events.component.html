@@ -2,10 +2,6 @@
 <div class="container">
         <p>From</p>
         <input type="date" [(clrDate)]="timeMin">
-        <p>To</p>
-        <input type="date" [(clrDate)]="timeMax">
-        <p>Max items</p>
-        <input type="text" placeholder="max items 2500" size="15" [(ngModel)]="maxResults" class="maxitems">
         <button class="btn btn-primary go" (click)="tastoEventi()">
             <clr-icon shape="download"></clr-icon>&thinsp; download
         </button>
@@ -45,7 +41,7 @@
                     <clr-dg-row *clrDgItems="let event of eventsList" [clrDgItem]="event">
                             <clr-dg-action-overflow>
                                     <button class="action-item" (click)="onEdit(user)">Edit</button>
-                                    <button class="action-item" (click)="onDelete(user)">Delete</button>
+                                    <button class="action-item" (click)="deleteEvent(event)">Delete</button>
                                 </clr-dg-action-overflow>
                         <clr-dg-cell>{{event.summary}}</clr-dg-cell>
                         <clr-dg-cell>{{event.start.date || event.start.dateTime | date: 'dd/MM/yyyy'}}</clr-dg-cell>

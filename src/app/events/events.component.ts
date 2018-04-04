@@ -51,20 +51,19 @@ export class EventsComponent implements OnInit {
 
     title = 'app';
     syncToken = null;
-    pageToken = null;
     loggato = false;
     apiLoaded = false;
     apiFailed = false;
     apiReady = false;
     _eventi: Event[];
     _evento: Event;
-    timeMin = '2018-04-02T15:31:47.031Z';
-    timeMax: Date = null;
-    maxResults = null;
+    timeMin = (new Date());
+    timeMin1 = this.timeMin.getTime(); // serve per vedere il cambiamento della data di inizio sincronizzazione
+
     listParameter: {
         'calendarId': '',
         'timeMin': String,
-        'timeMax': Date,
+        'timeMax': String,
         'showDeleted': boolean,
         'singleEvents': boolean,
         'maxResults': number,
@@ -72,7 +71,7 @@ export class EventsComponent implements OnInit {
 
     } = {
             'calendarId': '',
-            'timeMin': this.timeMin,
+            'timeMin': this.timeMin.toISOString(),
             'timeMax': null,
             'showDeleted': false,
             'singleEvents': true,
@@ -81,9 +80,11 @@ export class EventsComponent implements OnInit {
         };
     listParameter1 = {
         'calendarId': 'primary',
-        'timeMin': null,
+        'timeMin': this.timeMin.toISOString(),
+        'timeMax:': null,
         'singleEvents': true,
-        'maxResults': 30,
+        /* 'maxResults': this.maxResults, */
+        'maxResults': null,
         'syncToken': null,
         'pageToken': null
     };
@@ -134,9 +135,9 @@ export class EventsComponent implements OnInit {
 
     autorizza() { this.apiLoaderService.signIn().then(() => { this.setStato(); this.eventi(this.listParameter); }); }
     revoca() { this.apiLoaderService.signOut().then(() => { this.mostra = false; this.setStato(); }); }
-    deleteEvent() {
+    deleteEvent(event) {
         console.log('idEvent: ' +
-            this.selected.id); this.apiLoaderService.DeleteEvents(this.selected).then(() => this.eventi(this.listParameter));
+            event.id); this.apiLoaderService.DeleteEvents(event).then(resp => {this.eventi1(this.listParameter1); });
     }
 
     tastoEventi() { this.eventi1(this.listParameter1); }
@@ -144,8 +145,8 @@ export class EventsComponent implements OnInit {
     eventi(list) {
 
         //  list.timeMin = this.timeMin.toISOString();
-        if (this.timeMax) { list.timeMax = this.timeMax.toISOString(); } else { list.timeMax = null; }
-        if (this.maxResults) { list.maxResults = this.maxResults; } else { list.maxResults = 30; }
+       /*  if (this.timeMax) { list.timeMax = this.timeMax.toISOString(); } else { list.timeMax = null; }
+        if (this.maxResults) { list.maxResults = this.maxResults; } else { list.maxResults = 30; } */
 
         this.apiLoaderService.listUpcomingEvents(list).then(
             response => {
@@ -173,39 +174,40 @@ export class EventsComponent implements OnInit {
 
 
 
-       if (this.eventsList.length === 0) { this.eventsList.push(event); return; }
+        if (this.eventsList.length === 0) { this.eventsList.push(event); return; }
 
         for (let e = 0; e <= this.eventsList.length - 1; e++) {
 
-                // inserire if per controllare lo status e fare lo splice su l'indice dell'elemento
+            // inserire if per controllare lo status e fare lo splice su l'indice dell'elemento
 
-                if (this.eventsList[e].id === event.id) {
-
-                    if (event.status === 'cancelled') {
-
-                        this.eventsList.splice(e, 1); return;
-
-                    } else { this.eventsList[e] = event; return; }
-
-                }
+            if (this.eventsList[e].id === event.id && event.status === 'cancelled') {
 
 
-                if ((this.eventsList[e] !== event.id) && (e === this.eventsList.length - 1)) { this.eventsList.push(event); return; }
+                    this.eventsList.splice(e, 1); return;
 
             }
 
+
+            if ((this.eventsList[e] !== event.id) && (e === this.eventsList.length - 1)) { this.eventsList.push(event); return; }
+
         }
+
+    }
 
 
 
 
 
     async eventi1(list1) {
+        // console.log(this.maxResults + ' - ' + this.maxResults1);
+        console.log(this.timeMin.getTime() + ' - ' + this.timeMin1);
+    if (this.timeMin.getTime() !== this.timeMin1) { this.syncToken = null, this.eventsList = []; this.timeMin1 = this.timeMin.getTime();
+                                                    list1.timeMin = null; list1.syncToken = null; list1.timeMax = null; }
 
-        console.log('ingresso: ' + this.syncToken);
+
         if (!this.syncToken) {
             console.log('Performing full sync.');
-            list1.timeMin = (new Date()).toISOString();
+            list1.timeMin = this.timeMin.toISOString();
         } else {
             list1.timeMin = null;
             console.log('Performing incremental sync.');
@@ -218,44 +220,37 @@ export class EventsComponent implements OnInit {
         do {
             list1.pageToken = pageToken;
 
-            try {
-                await this.apiLoaderService.listUpcomingEvents1(list1).then(r => { resp = r; },
-                    er => { console.log('err' + er.body); });
-            } catch (e) {
+            await this.apiLoaderService.listUpcomingEvents1(list1).then(
+                r => { resp = r; },
+                er => {
+                    console.log('err' + er.body);
+                });
 
-                console.log('catch');
-                if (e.getStatusCode() === 410) {
-                    // A 410 status code, "Gone", indicates that the sync token is invalid.
-                    console.log('Invalid sync token, clearing event store and re-syncing.');
-                    this.syncToken = null;
-                    this.pageToken = null;
-                    this.eventi1(this.listParameter1);
-                } else { console.log('throw'); throw e; }
-            }
+
             // console.log('risp1' + resp.result.items.length);
             if (resp.result.items.length > 0) {
                 for (let e = 0; e <= resp.result.items.length - 1; e++) {
-                  await  this.syncEvent(resp.result.items[e]);
+                    await this.syncEvent(resp.result.items[e]);
                 }
             } else { console.log('No new events to sync.'); }
 
 
-            /* if (resp.result.nextPageToken === undefined) {
-                console.log('pageToken: ' + pageToken);
-                console.log('syncToken: ' + resp.result.nextSyncToken);
-                this.syncToken = pageToken;
-            } */
-
             pageToken = resp.result.nextPageToken;
 
         } while (pageToken !== undefined);
-        console.log('risposta: ' + resp.body);
+        // console.log('risposta: ' + resp.body);
         this.syncToken = resp.result.nextSyncToken;
         console.log('syncToken1: ' + resp.result.nextSyncToken);
         console.log('Sync complete.');
 
 
+
+
+
     }
+
+
+
 
 
     edit() { }
